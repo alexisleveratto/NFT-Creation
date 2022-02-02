@@ -1,13 +1,7 @@
-import configparser
 import os
 
-config = configparser.ConfigParser()
-config.read("resources/application.properties")
 
-
-def rename_images():
-    images_path = config["COMMON"]["image_path"]
-
+def normalize_images_name(images_path: str):
     for count, filename in enumerate(os.listdir(images_path)):
         dst = "{}/image_{}.jpg".format(images_path, count)
         src = "{}/{}".format(images_path, filename)
@@ -16,4 +10,9 @@ def rename_images():
         os.rename(src, dst)
 
 
+def mark_as_done(image_path: str):
+    path_list = image_path.split("/")
+    image_new_name = "DONE_{}".format(path_list.pop())
+    path_list.append(image_new_name)
 
+    return "/".join(path_list)
