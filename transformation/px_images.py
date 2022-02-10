@@ -12,8 +12,8 @@ class PixelateImage:
         self._results_folder = config["COMMON"]["results_path"]
 
         # Desired "pixelated" size
-        self._px_w = config["PARAMS"]["pixelated_width"]
-        self._px_h = config["PARAMS"]["pixelated_high"]
+        self._px_w = config.getint("PARAMS", "pixelated_width")
+        self._px_h = config.getint("PARAMS", "pixelated_high")
 
         print("[INFO] - Pixel class created")
 
