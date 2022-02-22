@@ -25,7 +25,7 @@ if __name__ == '__main__':
         pixelator.pixelate_image()
 
     colorator = ColorImages(config)
-    colorator.filter_green()
+    colorator.filter_hsv()
 
 
     if config.getboolean("RUNNING", "mark_undo"):
