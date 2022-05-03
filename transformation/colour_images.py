@@ -37,7 +37,7 @@ class ColorImages:
         global reference_point
 
         # read the image
-        img = cv2.imread("/Users/alexis.leverattoultratendency.com/NFT-Creation/images/image_8.jpg")
+        img = cv2.imread("images/image_8.jpg")
 
         cv2.namedWindow("Pick a Pixel", cv2.WINDOW_NORMAL)
         cv2.setMouseCallback("Pick a Pixel", mouse_callback)
