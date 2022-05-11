@@ -92,9 +92,11 @@ class ColorImages:
 
             print("[INFO] - Saving HSV transformation for image {}".format(image_path.split("/")[-1]))
             cv2.imwrite(output_path_hsv, hsv_img)
+            print(output_path_hsv)
 
             print("[INFO] - Saving MASKED transformation for image {}".format(image_path.split("/")[-1]))
-            cv2.imwrite(output_path_trans, output_path_trans)
+            cv2.imwrite(output_path_trans, transformed_image)
+            print(output_path_trans)
 
 
     def transform_color(self):
