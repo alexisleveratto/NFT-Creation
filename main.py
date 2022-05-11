@@ -24,9 +24,10 @@ if __name__ == '__main__':
         pixelator = PixelateImage(config)
         pixelator.pixelate_image()
 
-    colorator = ColorImages(config)
-    colorator.filter_hsv()
-
+    if config.getboolean("RUNNING", "color_change"):
+        print("[INFO] - Change color for collection")
+        colorator = ColorImages(config)
+        colorator.transform_color()
 
     if config.getboolean("RUNNING", "mark_undo"):
         print("[INFO] - Marking as undo")

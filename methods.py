@@ -1,7 +1,8 @@
 import os
 
+
 def create_directory(directory_path):
-    if not(os.path.isdir(directory_path)):
+    if not (os.path.isdir(directory_path)):
         os.mkdir(directory_path)
 
 
@@ -31,12 +32,13 @@ def mark_as_undone(images_path: str, image_numbers: str):
         img_changed = img_to_change.replace("DONE_", "")
         os.rename(img_to_change, img_changed)
 
+
 def save_results(result_image_path: str, save_image_path: str, image_numbers: str):
     save_images_list = ["results_{}.jpg".format(img_number) for img_number in image_numbers.split(",")]
 
-    results_to_save = ["{}/{}".format(result_image_path, save_img) for save_img in save_images_list if save_img in os.listdir(result_image_path)]
+    results_to_save = ["{}/{}".format(result_image_path, save_img) for save_img in save_images_list if
+                       save_img in os.listdir(result_image_path)]
 
     for img_to_save in results_to_save:
         new_directory = "{}/{}".format(save_image_path, img_to_save.split("/")[-1])
         os.replace(img_to_save, new_directory)
-
