@@ -25,6 +25,8 @@ class ColorImages:
         self.lower_threshold = np.array([0, 0, 0])
         self.upper_threshold = np.array([255, 255, 255])
 
+        self.what_color_now = eval(config["PARAMS"]["color_transformation"])
+
     def _set_lower_upper_hsv(self, image):
         global reference_point
 
@@ -39,7 +41,31 @@ class ColorImages:
         self.lower_threshold = np.array([h - 50, s - 50, v - 50])
         self.upper_threshold = np.array([h + 50, s + 50, v + 50])
 
-    def _set_threshold_hsv(self, image_path, save_results=False):
+
+    def _transform_color(self, image_path, save_transformation=False, save_hsv=False):
+        # read the image
+        img = cv2.imread(image_path)
+
+        hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+        mask = cv2.inRange(hsv_img, self.lower_threshold, self.upper_threshold)
+
+        transformed_image = img.copy()
+        transformed_image[mask > 0] = self.what_color_now
+
+        if save_hsv:
+            output_path_hsv = "{}/{}{}{}".format(self._result_folder, self.what_color_now, "_HSV_", image_path.split("/")[-1])
+            print("[INFO] - Saving HSV transformation for image {}".format(image_path.split("/")[-1]))
+            cv2.imwrite(output_path_hsv, hsv_img)
+            print(output_path_hsv)
+
+        if save_transformation:
+            output_path_trans = "{}/{}{}{}".format(self._result_folder, self.what_color_now, "_TRANSFORMED_", image_path.split("/")[-1])
+            print("[INFO] - Saving MASKED transformation for image {}".format(image_path.split("/")[-1]))
+            cv2.imwrite(output_path_trans, transformed_image)
+            print(output_path_trans)
+
+    def _set_analyze_threshold_hsv(self, image_path, save_results=False):
         global reference_point
 
         # read the image
@@ -64,7 +90,7 @@ class ColorImages:
 
         # color transformation
         transformed_image = img.copy()
-        transformed_image[mask > 0] = (0, 0, 255)
+        transformed_image[mask > 0] = self.what_color_now
 
         # perform bitwise and on the original image arrays using the mask
         result = cv2.bitwise_and(img, img, mask=mask)
@@ -86,23 +112,9 @@ class ColorImages:
         if cv2.waitKey(0):
             cv2.destroyAllWindows()
 
-        if save_results:
-            output_path_hsv = "{}/{}{}".format(self._result_folder, "HSV_", image_path.split("/")[-1])
-            output_path_trans = "{}/{}{}".format(self._result_folder, "TRANSFORMED_", image_path.split("/")[-1])
-
-            print("[INFO] - Saving HSV transformation for image {}".format(image_path.split("/")[-1]))
-            cv2.imwrite(output_path_hsv, hsv_img)
-            print(output_path_hsv)
-
-            print("[INFO] - Saving MASKED transformation for image {}".format(image_path.split("/")[-1]))
-            cv2.imwrite(output_path_trans, transformed_image)
-            print(output_path_trans)
-
-
-    def transform_color(self):
+    def transform(self):
 
         for count, image_name in enumerate(os.listdir(self._image_folder)):
-
             if "DONE" in image_name:
                 print("[WARN] - Ignoring {}".format(image_name))
             else:
@@ -112,11 +124,38 @@ class ColorImages:
                 image_path = os.path.join(self._image_folder, image_name)
 
                 # Transforming image
-                print("[INFO] - Transforming color on image {}".format(image_name))
-                self._set_threshold_hsv(image_path, True)
+                print("[INFO] - Transforming color with {} on image {}".format(self.what_color_now, image_name))
+                self._transform_color(image_path, save_transformation=True)
 
                 # Mark as done
-                new_image_name = mark_as_done(image_path)
-                os.rename(image_path, new_image_name)
+                # new_image_name = mark_as_done(image_path)
+                # os.rename(image_path, new_image_name)
+
+        print("[INFO] - Finish with color transformation")
+
+    def bulk_transform(self):
+        total_white = (255, 255, 255)
+
+        for count, image_name in enumerate(os.listdir(self._image_folder)):
+            if "DONE" in image_name:
+                print("[WARN] - Ignoring {}".format(image_name))
+            else:
+                print("[INFO] - Changing color on image {}".format(image_name))
+
+                # Construct image path
+                image_path = os.path.join(self._image_folder, image_name)
+                while self.what_color_now[0] != 255:
+                    while self.what_color_now[1] != 255:
+                        while self.what_color_now[2] != 255:
+                            # Transforming image
+                            print("[INFO] - Transforming color with {} on image {}".format(self.what_color_now, image_name))
+                            self._transform_color(image_path, save_transformation=True)
+                            self.what_color_now[2] += 1
+                        self.what_color_now[1] += 1
+                    self.what_color_now[0] += 1  # Update blue channel
+
+                # Mark as done
+                # new_image_name = mark_as_done(image_path)
+                # os.rename(image_path, new_image_name)
 
         print("[INFO] - Finish with color transformation")
