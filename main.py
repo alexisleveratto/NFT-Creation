@@ -25,9 +25,22 @@ if __name__ == '__main__':
         pixelator.pixelate_image()
 
     if config.getboolean("RUNNING", "color_change"):
-        print("[INFO] - Change color for collection")
-        colorator = ColorImages(config)
-        colorator.transform_color()
+        print("[INFO] - Change color")
+        what_kind_of_transformation = config["COLOR"]["what_color_change"].upper()
+        if what_kind_of_transformation == "BULK":
+            colorator = ColorImages(config)
+            colorator.bulk_transform()
+        elif what_kind_of_transformation == "UNIQUE":
+            colorator = ColorImages(config)
+            colorator.transform()
+        elif what_kind_of_transformation == "ALEATORY":
+            colorator = ColorImages(config)
+            colorator.aleatory_threshold_and_mask()
+        elif what_kind_of_transformation == "EXPLORATORY":
+            colorator = ColorImages(config)
+            colorator.set_analyze_threshold_hsv(config["COLOR"]["image_to_explore"])
+        else:
+            print("[INFO] - Bad color transformation request (options: BULK, UNIQUE, ALEATORY, EXPLORATORY)")
 
     if config.getboolean("RUNNING", "mark_undo"):
         print("[INFO] - Marking as undo")

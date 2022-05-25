@@ -1,5 +1,6 @@
 import configparser
 import os.path
+import random
 
 import cv2
 import numpy as np
@@ -17,15 +18,26 @@ def mouse_callback(event, x, y, flags, param):
 
 class ColorImages:
     def __init__(self, config: configparser):
-        self._image_folder = os.path.join(config["COMMON"]["images_path"], config["COMMON"]["color_images_path"])
-        self._result_folder = os.path.join(config["COMMON"]["results_path"], config["COMMON"]["color_images_path"])
+        self._image_folder = os.path.join(config["COMMON"]["images_path"], config["COLOR"]["color_images_path"])
+        self._result_folder = os.path.join(config["COMMON"]["results_path"], config["COLOR"]["color_images_path"])
 
         self._image = config["LISTING"]["color_images_number"]
 
-        self.lower_threshold = np.array([0, 0, 0])
-        self.upper_threshold = np.array([255, 255, 255])
+        self.color_threshold = eval(config["COLOR"]["color_threshold"])
 
-        self.what_color_now = eval(config["PARAMS"]["color_transformation"])
+        self.what_color_now = eval(config["COLOR"]["color_mask"])
+
+        self.aleatory_images = config.getint("COLOR", "how_many_aleatory")
+
+        self._set_lower_upper_fixed()
+
+    def _set_lower_upper_fixed(self):
+        self.lower_threshold = np.array([self.color_threshold[0] - 50,
+                                         self.color_threshold[1] - 50,
+                                         self.color_threshold[2] - 50])
+        self.upper_threshold = np.array([self.color_threshold[0] + 50,
+                                         self.color_threshold[1] + 50,
+                                         self.color_threshold[2] + 50])
 
     def _set_lower_upper_hsv(self, image):
         global reference_point
@@ -41,7 +53,6 @@ class ColorImages:
         self.lower_threshold = np.array([h - 50, s - 50, v - 50])
         self.upper_threshold = np.array([h + 50, s + 50, v + 50])
 
-
     def _transform_color(self, image_path, save_transformation=False, save_hsv=False):
         # read the image
         img = cv2.imread(image_path)
@@ -54,18 +65,22 @@ class ColorImages:
         transformed_image[mask > 0] = self.what_color_now
 
         if save_hsv:
-            output_path_hsv = "{}/{}{}{}".format(self._result_folder, self.what_color_now, "_HSV_", image_path.split("/")[-1])
+            output_path_hsv = "{}/MASK: {} THRESHOLD: {} IMAGE HSV: {}".format(self._result_folder,
+                                                                               self.what_color_now,
+                                                                               self.color_threshold,
+                                                                               image_path.split("/")[-1])
             print("[INFO] - Saving HSV transformation for image {}".format(image_path.split("/")[-1]))
             cv2.imwrite(output_path_hsv, hsv_img)
-            print(output_path_hsv)
 
         if save_transformation:
-            output_path_trans = "{}/{}{}{}".format(self._result_folder, self.what_color_now, "_TRANSFORMED_", image_path.split("/")[-1])
+            output_path_trans = "{}/MASK: {} THRESHOLD: {} IMAGE COLOR TRANSFORM: {}".format(self._result_folder,
+                                                                                             self.what_color_now,
+                                                                                             self.color_threshold,
+                                                                                             image_path.split("/")[-1])
             print("[INFO] - Saving MASKED transformation for image {}".format(image_path.split("/")[-1]))
             cv2.imwrite(output_path_trans, transformed_image)
-            print(output_path_trans)
 
-    def _set_analyze_threshold_hsv(self, image_path, save_results=False):
+    def set_analyze_threshold_hsv(self, image_path):
         global reference_point
 
         # read the image
@@ -128,14 +143,12 @@ class ColorImages:
                 self._transform_color(image_path, save_transformation=True)
 
                 # Mark as done
-                # new_image_name = mark_as_done(image_path)
-                # os.rename(image_path, new_image_name)
+                new_image_name = mark_as_done(image_path)
+                os.rename(image_path, new_image_name)
 
         print("[INFO] - Finish with color transformation")
 
     def bulk_transform(self):
-        total_white = (255, 255, 255)
-
         for count, image_name in enumerate(os.listdir(self._image_folder)):
             if "DONE" in image_name:
                 print("[WARN] - Ignoring {}".format(image_name))
@@ -144,18 +157,89 @@ class ColorImages:
 
                 # Construct image path
                 image_path = os.path.join(self._image_folder, image_name)
+
+                self.what_color_now = (0, 0, 0)
                 while self.what_color_now[0] != 255:
+                    self.what_color_now = (self.what_color_now[0], 250, self.what_color_now[2])
                     while self.what_color_now[1] != 255:
+                        self.what_color_now = (self.what_color_now[0], self.what_color_now[1], 250)
                         while self.what_color_now[2] != 255:
                             # Transforming image
-                            print("[INFO] - Transforming color with {} on image {}".format(self.what_color_now, image_name))
+                            print("[INFO] - Transforming color with {} on image {}".format(self.what_color_now,
+                                                                                           image_name))
                             self._transform_color(image_path, save_transformation=True)
-                            self.what_color_now[2] += 1
-                        self.what_color_now[1] += 1
-                    self.what_color_now[0] += 1  # Update blue channel
+                            self.what_color_now = (self.what_color_now[0],
+                                                   self.what_color_now[1],
+                                                   self.what_color_now[2] + 1)  # Update RED channel
+                        self.what_color_now = (self.what_color_now[0],
+                                               self.what_color_now[1] + 1,
+                                               self.what_color_now[2])  # Update GREEN channel
+                    self.what_color_now = (self.what_color_now[0] + 1,
+                                           self.what_color_now[1],
+                                           self.what_color_now[2])  # Update BLUE channel
 
                 # Mark as done
-                # new_image_name = mark_as_done(image_path)
-                # os.rename(image_path, new_image_name)
+                new_image_name = mark_as_done(image_path)
+                os.rename(image_path, new_image_name)
 
+        print("[INFO] - Finish with color transformation")
+
+    def aleatory_mask_transformation(self):
+        for count, image_name in enumerate(os.listdir(self._image_folder)):
+            if "DONE" in image_name:
+                print("[WARN] - Ignoring {}".format(image_name))
+            else:
+                print("[INFO] - Changing color on image {}".format(image_name))
+
+                # Construct image path
+                image_path = os.path.join(self._image_folder, image_name)
+                for i in range(self.aleatory_images):
+                    self.what_color_now = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                    print("[INFO] - Transformation number {}, with color {} on image {}".format(i,
+                                                                                                self.what_color_now,
+                                                                                                image_name))
+                    self._transform_color(image_path, save_transformation=True)
+        print("[INFO] - Finish with color transformation")
+
+    def aleatory_threshold_transformation(self):
+        for count, image_name in enumerate(os.listdir(self._image_folder)):
+            if "DONE" in image_name:
+                print("[WARN] - Ignoring {}".format(image_name))
+            else:
+                print("[INFO] - Changing color on image {}".format(image_name))
+
+                # Construct image path
+                image_path = os.path.join(self._image_folder, image_name)
+
+                for i in range(self.aleatory_images):
+                    self.color_threshold = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                    self._set_lower_upper_fixed()
+                    print("[INFO] - Transformation number {}, with threshold {} and mask {} on image {}".format(i,
+                                                                                                                self.color_threshold,
+                                                                                                                self.what_color_now,
+                                                                                                                image_name))
+                    self._transform_color(image_path, save_transformation=True)
+        print("[INFO] - Finish with color transformation")
+
+    def aleatory_threshold_and_mask(self):
+        for count, image_name in enumerate(os.listdir(self._image_folder)):
+            if "DONE" in image_name:
+                print("[WARN] - Ignoring {}".format(image_name))
+            else:
+                print("[INFO] - Changing color on image {}".format(image_name))
+
+                # Construct image path
+                image_path = os.path.join(self._image_folder, image_name)
+
+                for i in range(self.aleatory_images):
+                    self.color_threshold = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                    self._set_lower_upper_fixed()
+                    self.what_color_now = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                    print("[INFO] - Transformation number {}, with color {} on image {}".format(i,
+                                                                                                self.color_threshold,
+                                                                                                image_name))
+                    self._transform_color(image_path, save_transformation=True)
+
+                new_image_name = mark_as_done(image_path)
+                os.rename(image_path, new_image_name)
         print("[INFO] - Finish with color transformation")
