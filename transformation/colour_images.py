@@ -32,12 +32,12 @@ class ColorImages:
         self._set_lower_upper_fixed()
 
     def _set_lower_upper_fixed(self):
-        self.lower_threshold = np.array([self.color_threshold[0] - 50,
-                                         self.color_threshold[1] - 50,
-                                         self.color_threshold[2] - 50])
-        self.upper_threshold = np.array([self.color_threshold[0] + 50,
-                                         self.color_threshold[1] + 50,
-                                         self.color_threshold[2] + 50])
+        self.lower_threshold = np.array([self.color_threshold[0] - 70,
+                                         self.color_threshold[1] - 70,
+                                         self.color_threshold[2] - 70])
+        self.upper_threshold = np.array([self.color_threshold[0] + 70,
+                                         self.color_threshold[1] + 70,
+                                         self.color_threshold[2] + 70])
 
     def _set_lower_upper_hsv(self, image):
         global reference_point
@@ -143,8 +143,8 @@ class ColorImages:
                 self._transform_color(image_path, save_transformation=True)
 
                 # Mark as done
-                new_image_name = mark_as_done(image_path)
-                os.rename(image_path, new_image_name)
+                # new_image_name = mark_as_done(image_path)
+                # os.rename(image_path, new_image_name)
 
         print("[INFO] - Finish with color transformation")
 
