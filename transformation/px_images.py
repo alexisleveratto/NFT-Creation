@@ -20,33 +20,31 @@ class PixelateImage:
     def pixelate_image(self):
         for count, image_name in enumerate(os.listdir(self._images_folder)):
 
-            if "DONE" in image_name:
-                print("[WARN] - Ignoring {}".format(image_name))
-            else:
-                print("[INFO] - Pixelating {}".format(image_name))
-                # Construct Image path
-                image_path = "{}/{}".format(self._images_folder, image_name)
 
-                # Read Image
-                image = cv2.imread(image_path)
+            print("[INFO] - Pixelating {}".format(image_name))
+            # Construct Image path
+            image_path = "{}/{}".format(self._images_folder, image_name)
 
-                # Get input size
-                height, width = image.shape[:2]
+            # Read Image
+            image = cv2.imread(image_path)
 
-                # Resize input to "pixelated" size
-                temp = cv2.resize(image, (self._px_w, self._px_h), interpolation=cv2.INTER_LINEAR)
+            # Get input size
+            height, width = image.shape[:2]
 
-                # Initialize output image
-                output = cv2.resize(temp, (width, height), interpolation=cv2.INTER_NEAREST)
+            # Resize input to "pixelated" size
+            temp = cv2.resize(image, (self._px_w, self._px_h), interpolation=cv2.INTER_LINEAR)
 
-                # Construct Output path
-                output_path = "{}/results_{}.jpg".format(self._results_folder, count)
+            # Initialize output image
+            output = cv2.resize(temp, (width, height), interpolation=cv2.INTER_NEAREST)
 
-                # Save "pixelated" image
-                cv2.imwrite(output_path, output)
+            # Construct Output path
+            output_path = "{}/results_{}.jpg".format(self._results_folder, count)
 
-                # Mark as done
-                new_image_name = mark_as_done(image_path)
-                os.rename(image_path, new_image_name)
+            # Save "pixelated" image
+            cv2.imwrite(output_path, output)
+
+            # Mark as done
+            new_image_name = mark_as_done(image_path)
+            os.rename(image_path, new_image_name)
 
         print('[INFO] - Finish pixelating')

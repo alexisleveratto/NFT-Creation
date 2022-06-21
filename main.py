@@ -35,7 +35,7 @@ if __name__ == '__main__':
             colorator.transform()
         elif what_kind_of_transformation == "ALEATORY":
             colorator = ColorImages(config)
-            colorator.aleatory_threshold_and_mask()
+            colorator.aleatory_mask_transformation()
         elif what_kind_of_transformation == "EXPLORATORY":
             colorator = ColorImages(config)
             colorator.set_analyze_threshold_hsv(config["COLOR"]["image_to_explore"])
