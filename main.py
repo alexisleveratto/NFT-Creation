@@ -2,6 +2,7 @@ import configparser
 
 from transformation.px_images import PixelateImage
 from transformation.colour_images import ColorImages
+from transformation.mix_images import MixImage
 from methods import mark_as_undone, normalize_images_name, save_results, create_directory
 
 CONFIG_FILE_PATH = "resources/application.properties"
@@ -42,10 +43,6 @@ if __name__ == '__main__':
         else:
             print("[INFO] - Bad color transformation request (options: BULK, UNIQUE, ALEATORY, EXPLORATORY)")
 
-    if config.getboolean("RUNNING", "mark_undo"):
-        print("[INFO] - Marking as undo")
-        mark_as_undone(config["COMMON"]["images_path"], config["LISTING"]["images_number"])
-
-    if config.getboolean("RUNNING", "save_results"):
-        print("[INFO] - Saving images")
-        save_results(config["COMMON"]["results_path"], config["COMMON"]["saved_path"], config["LISTING"]["save_this"])
+    if config.getboolean("RUNNING", "mix_it_up"):
+        mixator = MixImage(config)
+        mixator.mix_it()
