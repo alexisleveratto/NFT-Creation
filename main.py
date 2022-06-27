@@ -45,4 +45,4 @@ if __name__ == '__main__':
 
     if config.getboolean("RUNNING", "mix_it_up"):
         mixator = MixImage(config)
-        mixator.mix_it()
+        mixator.mix_it(save_result=True, see_result=True)
