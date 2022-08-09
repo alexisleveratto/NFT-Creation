@@ -3,6 +3,7 @@ import configparser
 from transformation.px_images import PixelateImage
 from transformation.colour_images import ColorImages
 from transformation.mix_images import MixImage
+from scrape_images import WebScrape
 from methods import mark_as_undone, normalize_images_name, save_results, create_directory
 
 CONFIG_FILE_PATH = "resources/application.properties"
@@ -10,6 +11,11 @@ CONFIG_FILE_PATH = "resources/application.properties"
 if __name__ == '__main__':
     config = configparser.ConfigParser()
     config.read(CONFIG_FILE_PATH)
+
+    if config.getboolean("WEB", "scrape_4_images"):
+        spiderWeb = WebScrape(config)
+        spiderWeb.download("marilyn", "monroe")
+
 
     if config.getboolean("RUNNING", "check_directories"):
         create_directory(config["COMMON"]["images_path"])
@@ -45,4 +51,5 @@ if __name__ == '__main__':
 
     if config.getboolean("RUNNING", "mix_it_up"):
         mixator = MixImage(config)
-        mixator.mix_it(True, True)
+        mixator.mix_it(True, False)
+
