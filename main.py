@@ -6,7 +6,8 @@ from transformation.mix_images import MixImage
 from scrape_images import WebScrape
 from findfaces.encode_faces import FaceEncoder
 from findfaces.recognize_faces import FaceJudge
-from methods import mark_as_undone, normalize_images_name, save_results, create_directory
+from findfaces.face_replacement import FaceReplacement
+from methods import mark_as_undone, normalize_images_name, save_results, create_directory, svg_2_image
 
 CONFIG_FILE_PATH = "resources/application.properties"
 
@@ -20,6 +21,17 @@ if __name__ == '__main__':
     if config.getboolean("FACES", "recognize_faces"):
         judge = FaceJudge(config)
         judge.recognize_face_image()
+
+    if config.getboolean("RUNNING", "work_with_faces"):
+        faceReplacement = FaceReplacement(config)
+        if config.getboolean("FACES", "replace_faces"):
+            faceReplacement.replace_face()
+
+        if config.getboolean("FACES", "check_two_faces"):
+            faceReplacement.move_images_two_faces()
+
+        if config.getboolean("FACES", "qr_2_png"):
+            svg_2_image(base_path=config["FACES"]["qr_svg"], target_path=config["FACES"]["qr_images"])
 
     if config.getboolean("WEB", "scrape_4_images"):
         spiderWeb = WebScrape(config)

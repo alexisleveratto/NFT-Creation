@@ -14,10 +14,16 @@ class FaceJudge:
 
 		self._data = pickle.loads(open(self._encoder, "rb").read())
 
-	def recognize_face_image(self):
+	def recognize_face_image(self, image_2_recognize=None, show_image=False):
 
 		# load the input image and convert it from BGR to RGB
-		image = cv2.imread(self._image)
+		if image_2_recognize is None:
+			image = cv2.imread(self._image)
+		elif isinstance(image_2_recognize, str):
+			image = cv2.imread(image_2_recognize)
+		else:
+			image = image_2_recognize
+
 		rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
 		# detect the (x, y)-coordinates of the bounding boxes corresponding
@@ -59,12 +65,15 @@ class FaceJudge:
 			names.append(name)
 
 		# loop over the recognized faces
-		for ((top, right, bottom, left), name) in zip(boxes, names):
-			# draw the predicted face name on the image
-			cv2.rectangle(image, (left, top), (right, bottom), (0, 255, 0), 2)
-			y = top - 15 if top - 15 > 15 else top + 15
-			cv2.putText(image, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2)
+		if show_image:
+			for ((top, right, bottom, left), name) in zip(boxes, names):
+				# draw the predicted face name on the image
+				cv2.rectangle(image, (left, top), (right, bottom), (0, 255, 0), 2)
+				y = top - 15 if top - 15 > 15 else top + 15
+				cv2.putText(image, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2)
 
-		# show the output image
-		cv2.imshow("Image", image)
-		cv2.waitKey(0)
+			# show the output image
+			cv2.imshow("Image", image)
+			cv2.waitKey(0)
+
+		return boxes, names
