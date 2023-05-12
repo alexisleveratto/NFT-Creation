@@ -19,7 +19,9 @@ class WebScrape:
         response = requests.get(url)
 
         if response.status_code == 200:
-            with open(os.path.join(self.folder_path, "image-{}.jpg".format(num)), "wb") as file:
+            with open(
+                os.path.join(self.folder_path, "image-{}.jpg".format(num)), "wb"
+            ) as file:
                 file.write(response.content)
 
     def download(self, *look_for):
@@ -27,7 +29,9 @@ class WebScrape:
         for word in look_for:
             query += "{}+".format(word)
 
-        search_url = "http://www.google.com/search?q={}&source=lnms&tbm=isch".format(query[:-1])
+        search_url = "http://www.google.com/search?q={}&source=lnms&tbm=isch".format(
+            query[:-1]
+        )
 
         self.driver.get(search_url)
 
@@ -36,8 +40,8 @@ class WebScrape:
         self.driver.execute_script("window.scrollTo(0, 0);")
 
         page_html = self.driver.page_source
-        page_soup = bs4.BeautifulSoup(page_html, 'html.parser')
-        containers = page_soup.findAll('div', {'class': "isv-r PNCib MSM1fd BUooTd"})
+        page_soup = bs4.BeautifulSoup(page_html, "html.parser")
+        containers = page_soup.findAll("div", {"class": "isv-r PNCib MSM1fd BUooTd"})
 
         print(len(containers))
 
@@ -49,8 +53,12 @@ class WebScrape:
 
             x_path = """//*[@id="islrg"]/div[1]/div[{}]""".format(i)
 
-            preview_image_x_path = """//*[@id="islrg"]/div[1]/div[{}]/a[1]/div[1]/img""".format(i)
-            preview_image_element = self.driver.find_element("xpath", preview_image_x_path)
+            preview_image_x_path = (
+                """//*[@id="islrg"]/div[1]/div[{}]/a[1]/div[1]/img""".format(i)
+            )
+            preview_image_element = self.driver.find_element(
+                "xpath", preview_image_x_path
+            )
             preview_image_url = preview_image_element.get_attribute("src")
 
             self.driver.find_element("xpath", x_path).click()
@@ -59,7 +67,10 @@ class WebScrape:
             time_started = time.time()
             while True:
 
-                image_element = self.driver.find_element("xpath", """//*[@id="Sva75c"]/div/div/div[3]/div[2]/c-wiz/div/div[1]/div[1]/div[3]/div/a/img""")
+                image_element = self.driver.find_element(
+                    "xpath",
+                    """//*[@id="Sva75c"]/div/div/div[3]/div[2]/c-wiz/div/div[1]/div[1]/div[3]/div/a/img""",
+                )
                 image_url = image_element.get_attribute("src")
 
                 if image_url != preview_image_url:
@@ -68,14 +79,22 @@ class WebScrape:
                     current_time = time.time()
 
                     if current_time - time_started > 11:
-                        print("Timeout! Will download a lower resolution image and move onto the next one")
+                        print(
+                            "Timeout! Will download a lower resolution image and move onto the next one"
+                        )
                         break
 
             # Downloading image
             try:
                 self.download_images(image_url, i)
-                print("Downloaded element {} out of {} total".format(i, len_containers + 1))
+                print(
+                    "Downloaded element {} out of {} total".format(
+                        i, len_containers + 1
+                    )
+                )
             except:
-                print("Couldn't download an image {}, continuing downloading the next one".format(i))
-
-
+                print(
+                    "Couldn't download an image {}, continuing downloading the next one".format(
+                        i
+                    )
+                )

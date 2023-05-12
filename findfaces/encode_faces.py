@@ -29,7 +29,9 @@ class FaceEncoder:
 
             # load the input image and convert it from BGR (OpenCV ordering) to dlib ordering (RGB)
             image = cv2.imread(imagePath)
-            rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # but the dlib actually expects RGB
+            rgb = cv2.cvtColor(
+                image, cv2.COLOR_BGR2RGB
+            )  # but the dlib actually expects RGB
 
             # detect the (x, y)-coordinates of the bounding boxes corresponding to each face in the input image
             boxes = face_recognition.face_locations(rgb, model=self._detection_method)
@@ -49,4 +51,3 @@ class FaceEncoder:
         f = open(self._encodings, "wb")
         f.write(pickle.dumps(data))
         f.close()
-

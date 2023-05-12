@@ -18,8 +18,12 @@ def mouse_callback(event, x, y, flags, param):
 
 class ColorImages:
     def __init__(self, config: configparser):
-        self._image_folder = os.path.join(config["COMMON"]["images_path"], config["COLOR"]["color_images_path"])
-        self._result_folder = os.path.join(config["COMMON"]["results_path"], config["COLOR"]["color_images_path"])
+        self._image_folder = os.path.join(
+            config["COMMON"]["images_path"], config["COLOR"]["color_images_path"]
+        )
+        self._result_folder = os.path.join(
+            config["COMMON"]["results_path"], config["COLOR"]["color_images_path"]
+        )
 
         self._image = config["LISTING"]["color_images_number"]
 
@@ -32,12 +36,20 @@ class ColorImages:
         self._set_lower_upper_fixed()
 
     def _set_lower_upper_fixed(self):
-        self.lower_threshold = np.array([self.color_threshold[0] - 70,
-                                         self.color_threshold[1] - 70,
-                                         self.color_threshold[2] - 70])
-        self.upper_threshold = np.array([self.color_threshold[0] + 70,
-                                         self.color_threshold[1] + 70,
-                                         self.color_threshold[2] + 70])
+        self.lower_threshold = np.array(
+            [
+                self.color_threshold[0] - 70,
+                self.color_threshold[1] - 70,
+                self.color_threshold[2] - 70,
+            ]
+        )
+        self.upper_threshold = np.array(
+            [
+                self.color_threshold[0] + 70,
+                self.color_threshold[1] + 70,
+                self.color_threshold[2] + 70,
+            ]
+        )
 
     def _set_lower_upper_hsv(self, image):
         global reference_point
@@ -65,19 +77,33 @@ class ColorImages:
         transformed_image[mask > 0] = self.what_color_now
 
         if save_hsv:
-            output_path_hsv = "{}/MASK: {} THRESHOLD: {} IMAGE HSV: {}".format(self._result_folder,
-                                                                               self.what_color_now,
-                                                                               self.color_threshold,
-                                                                               image_path.split("/")[-1])
-            print("[INFO] - Saving HSV transformation for image {}".format(image_path.split("/")[-1]))
+            output_path_hsv = "{}/MASK: {} THRESHOLD: {} IMAGE HSV: {}".format(
+                self._result_folder,
+                self.what_color_now,
+                self.color_threshold,
+                image_path.split("/")[-1],
+            )
+            print(
+                "[INFO] - Saving HSV transformation for image {}".format(
+                    image_path.split("/")[-1]
+                )
+            )
             cv2.imwrite(output_path_hsv, hsv_img)
 
         if save_transformation:
-            output_path_trans = "{}/MASK: {} THRESHOLD: {} IMAGE COLOR TRANSFORM: {}".format(self._result_folder,
-                                                                                             self.what_color_now,
-                                                                                             self.color_threshold,
-                                                                                             image_path.split("/")[-1])
-            print("[INFO] - Saving MASKED transformation for image {}".format(image_path.split("/")[-1]))
+            output_path_trans = (
+                "{}/MASK: {} THRESHOLD: {} IMAGE COLOR TRANSFORM: {}".format(
+                    self._result_folder,
+                    self.what_color_now,
+                    self.color_threshold,
+                    image_path.split("/")[-1],
+                )
+            )
+            print(
+                "[INFO] - Saving MASKED transformation for image {}".format(
+                    image_path.split("/")[-1]
+                )
+            )
             cv2.imwrite(output_path_trans, transformed_image)
 
     def set_analyze_threshold_hsv(self, image_path):
@@ -139,7 +165,11 @@ class ColorImages:
                 image_path = os.path.join(self._image_folder, image_name)
 
                 # Transforming image
-                print("[INFO] - Transforming color with {} on image {}".format(self.what_color_now, image_name))
+                print(
+                    "[INFO] - Transforming color with {} on image {}".format(
+                        self.what_color_now, image_name
+                    )
+                )
                 self._transform_color(image_path, save_transformation=True)
 
                 # Mark as done
@@ -160,23 +190,40 @@ class ColorImages:
 
                 self.what_color_now = (0, 0, 0)
                 while self.what_color_now[0] != 255:
-                    self.what_color_now = (self.what_color_now[0], 250, self.what_color_now[2])
+                    self.what_color_now = (
+                        self.what_color_now[0],
+                        250,
+                        self.what_color_now[2],
+                    )
                     while self.what_color_now[1] != 255:
-                        self.what_color_now = (self.what_color_now[0], self.what_color_now[1], 250)
+                        self.what_color_now = (
+                            self.what_color_now[0],
+                            self.what_color_now[1],
+                            250,
+                        )
                         while self.what_color_now[2] != 255:
                             # Transforming image
-                            print("[INFO] - Transforming color with {} on image {}".format(self.what_color_now,
-                                                                                           image_name))
+                            print(
+                                "[INFO] - Transforming color with {} on image {}".format(
+                                    self.what_color_now, image_name
+                                )
+                            )
                             self._transform_color(image_path, save_transformation=True)
-                            self.what_color_now = (self.what_color_now[0],
-                                                   self.what_color_now[1],
-                                                   self.what_color_now[2] + 1)  # Update RED channel
-                        self.what_color_now = (self.what_color_now[0],
-                                               self.what_color_now[1] + 1,
-                                               self.what_color_now[2])  # Update GREEN channel
-                    self.what_color_now = (self.what_color_now[0] + 1,
-                                           self.what_color_now[1],
-                                           self.what_color_now[2])  # Update BLUE channel
+                            self.what_color_now = (
+                                self.what_color_now[0],
+                                self.what_color_now[1],
+                                self.what_color_now[2] + 1,
+                            )  # Update RED channel
+                        self.what_color_now = (
+                            self.what_color_now[0],
+                            self.what_color_now[1] + 1,
+                            self.what_color_now[2],
+                        )  # Update GREEN channel
+                    self.what_color_now = (
+                        self.what_color_now[0] + 1,
+                        self.what_color_now[1],
+                        self.what_color_now[2],
+                    )  # Update BLUE channel
 
                 # Mark as done
                 new_image_name = mark_as_done(image_path)
@@ -194,10 +241,16 @@ class ColorImages:
                 # Construct image path
                 image_path = os.path.join(self._image_folder, image_name)
                 for i in range(self.aleatory_images):
-                    self.what_color_now = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                    print("[INFO] - Transformation number {}, with color {} on image {}".format(i,
-                                                                                                self.what_color_now,
-                                                                                                image_name))
+                    self.what_color_now = (
+                        random.randint(0, 255),
+                        random.randint(0, 255),
+                        random.randint(0, 255),
+                    )
+                    print(
+                        "[INFO] - Transformation number {}, with color {} on image {}".format(
+                            i, self.what_color_now, image_name
+                        )
+                    )
                     self._transform_color(image_path, save_transformation=True)
         print("[INFO] - Finish with color transformation")
 
@@ -212,12 +265,17 @@ class ColorImages:
                 image_path = os.path.join(self._image_folder, image_name)
 
                 for i in range(self.aleatory_images):
-                    self.color_threshold = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                    self.color_threshold = (
+                        random.randint(0, 255),
+                        random.randint(0, 255),
+                        random.randint(0, 255),
+                    )
                     self._set_lower_upper_fixed()
-                    print("[INFO] - Transformation number {}, with threshold {} and mask {} on image {}".format(i,
-                                                                                                                self.color_threshold,
-                                                                                                                self.what_color_now,
-                                                                                                                image_name))
+                    print(
+                        "[INFO] - Transformation number {}, with threshold {} and mask {} on image {}".format(
+                            i, self.color_threshold, self.what_color_now, image_name
+                        )
+                    )
                     self._transform_color(image_path, save_transformation=True)
         print("[INFO] - Finish with color transformation")
 
@@ -232,12 +290,22 @@ class ColorImages:
                 image_path = os.path.join(self._image_folder, image_name)
 
                 for i in range(self.aleatory_images):
-                    self.color_threshold = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                    self.color_threshold = (
+                        random.randint(0, 255),
+                        random.randint(0, 255),
+                        random.randint(0, 255),
+                    )
                     self._set_lower_upper_fixed()
-                    self.what_color_now = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                    print("[INFO] - Transformation number {}, with color {} on image {}".format(i,
-                                                                                                self.color_threshold,
-                                                                                                image_name))
+                    self.what_color_now = (
+                        random.randint(0, 255),
+                        random.randint(0, 255),
+                        random.randint(0, 255),
+                    )
+                    print(
+                        "[INFO] - Transformation number {}, with color {} on image {}".format(
+                            i, self.color_threshold, image_name
+                        )
+                    )
                     self._transform_color(image_path, save_transformation=True)
 
                 new_image_name = mark_as_done(image_path)

@@ -7,11 +7,17 @@ from scrape_images import WebScrape
 from findfaces.encode_faces import FaceEncoder
 from findfaces.recognize_faces import FaceJudge
 from findfaces.face_replacement import FaceReplacement
-from methods import mark_as_undone, normalize_images_name, save_results, create_directory, svg_2_image
+from methods import (
+    mark_as_undone,
+    normalize_images_name,
+    save_results,
+    create_directory,
+    svg_2_image,
+)
 
 CONFIG_FILE_PATH = "resources/application.properties"
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     config = configparser.ConfigParser()
     config.read(CONFIG_FILE_PATH)
     if config.getboolean("FACES", "encode_faces"):
@@ -31,7 +37,10 @@ if __name__ == '__main__':
             faceReplacement.move_images_two_faces()
 
         if config.getboolean("FACES", "qr_2_png"):
-            svg_2_image(base_path=config["FACES"]["qr_svg"], target_path=config["FACES"]["qr_images"])
+            svg_2_image(
+                base_path=config["FACES"]["qr_svg"],
+                target_path=config["FACES"]["qr_images"],
+            )
 
     if config.getboolean("WEB", "scrape_4_images"):
         spiderWeb = WebScrape(config)
@@ -67,9 +76,10 @@ if __name__ == '__main__':
             colorator = ColorImages(config)
             colorator.set_analyze_threshold_hsv(config["COLOR"]["image_to_explore"])
         else:
-            print("[INFO] - Bad color transformation request (options: BULK, UNIQUE, ALEATORY, EXPLORATORY)")
+            print(
+                "[INFO] - Bad color transformation request (options: BULK, UNIQUE, ALEATORY, EXPLORATORY)"
+            )
 
     if config.getboolean("RUNNING", "mix_it_up"):
         mixator = MixImage(config)
         mixator.mix_it(True, False)
-

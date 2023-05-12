@@ -3,7 +3,13 @@ import os.path
 
 import cv2
 from imutils import paths
-from methods import list_files, create_directory, centroid_histogram, plot_colors, move_image
+from methods import (
+    list_files,
+    create_directory,
+    centroid_histogram,
+    plot_colors,
+    move_image,
+)
 from sklearn.cluster import KMeans
 
 import numpy as np
@@ -35,7 +41,9 @@ class FaceReplacement:
                     qr_image[i, j] = black_replacement
         return qr_image
 
-    def _colored_qr(self, qr_image, roi_image, n_colors: int = 2, show_images: bool = False):
+    def _colored_qr(
+        self, qr_image, roi_image, n_colors: int = 2, show_images: bool = False
+    ):
         # reshape the image to be a list of pixels
         image = roi_image.reshape((roi_image.shape[0] * roi_image.shape[1], 3))
 
@@ -85,21 +93,34 @@ class FaceReplacement:
 
             image = cv2.imread(self._imagePaths[i])
 
-            boxes, _ = self._faceJudge.recognize_face_image(image)
+            model_name = self._imagePaths[i].split(os.path.sep)[-2]
+
+            boxes, encoded_names = self._faceJudge.recognize_face_image(image)
 
             if (len(boxes) != 1) and self._checkMoreThanOneFaceImg:
-                print("[WARN] - More than one face found in {}".format(self._imagePaths[i].split("/")[-1]))
+                print(
+                    "[WARN] - More than one face found in {}".format(
+                        self._imagePaths[i].split("/")[-1]
+                    )
+                )
                 move_image(self._imagePaths[i], self._reorderPath)
                 continue
 
-            # we just want to replace one marilyn face
-            (top, right, bottom, left) = boxes[0]
+            for (n, encoded_name) in enumerate(encoded_names):
+                if (
+                    True
+                ):  # Todo:  SOLVE THIS FOR WHEN THE PICTURE HAS MORE THAN ONE FACE (encoded_name == model_name:)
+                    #        we just want to replace one marilyn face
+                    (top, right, bottom, left) = boxes[n]
+                    break
 
             roi = image[top:bottom, left:right]
 
             # roi and qr_image should have the same size
             new_size = (right - left, bottom - top)
-            qr_image_resized = cv2.resize(qr_image, new_size, interpolation=cv2.INTER_LINEAR)
+            qr_image_resized = cv2.resize(
+                qr_image, new_size, interpolation=cv2.INTER_LINEAR
+            )
 
             # change qr image color
             print("[INFO] - Changing qr color")
@@ -125,14 +146,6 @@ class FaceReplacement:
             cv2.imwrite(image_path, image)
 
             if show_results:
-                cv2.imshow('Image Result', image)
+                cv2.imshow("Image Result", image)
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
-
-
-
-
-
-
-
-

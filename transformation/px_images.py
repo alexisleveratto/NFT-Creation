@@ -34,10 +34,14 @@ class PixelateImage:
                 height, width = image.shape[:2]
 
                 # Resize input to "pixelated" size
-                temp = cv2.resize(image, (self._px_w, self._px_h), interpolation=cv2.INTER_LINEAR)
+                temp = cv2.resize(
+                    image, (self._px_w, self._px_h), interpolation=cv2.INTER_LINEAR
+                )
 
                 # Initialize output image
-                output = cv2.resize(temp, (width, height), interpolation=cv2.INTER_NEAREST)
+                output = cv2.resize(
+                    temp, (width, height), interpolation=cv2.INTER_NEAREST
+                )
 
                 # Construct Output path
                 output_path = "{}/results_{}.jpg".format(self._results_folder, count)
@@ -49,4 +53,4 @@ class PixelateImage:
                 new_image_name = mark_as_done(image_path)
                 os.rename(image_path, new_image_name)
 
-        print('[INFO] - Finish pixelating')
+        print("[INFO] - Finish pixelating")
